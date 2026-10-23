@@ -9,10 +9,12 @@ interface Props {
   onOpenMobile: () => void;
   onNavigate: (v: View) => void;
   isDemoMode: boolean;
+  onExitDemoMode: () => void;
 }
 
-export default function Header({ onOpenMobile, onNavigate, isDemoMode }: Props) {
+export default function Header({ onOpenMobile, onNavigate, isDemoMode, onExitDemoMode }: Props) {
   const { user, signOut } = useAuth();
+  const { clearForUser } = notificationStore;
   const [, setTick] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -30,7 +32,13 @@ export default function Header({ onOpenMobile, onNavigate, isDemoMode }: Props) 
 
   const handleSignOut = async () => {
     setMenuOpen(false);
-    await signOut();
+    if (isDemoMode) {
+      clearForUser();
+      onExitDemoMode();
+    } else {
+      await signOut();
+      clearForUser();
+    }
   };
 
   return (

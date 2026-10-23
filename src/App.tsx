@@ -34,6 +34,7 @@ function AppInner() {
       notificationStore.loadForUser(user.id);
       libraryStore.checkDueDateNotifications();
     } else if (demoMode) {
+      notificationStore.loadForUser('demo');
       libraryStore.checkDueDateNotifications();
     }
   }, [user, demoMode]);
@@ -74,6 +75,7 @@ function AppInner() {
           onOpenMobile={() => setMobileOpen(true)}
           onNavigate={setView}
           isDemoMode={demoMode}
+          onExitDemoMode={() => { setDemoMode(false); setView('dashboard'); }}
         />
         <main className="flex-1 overflow-y-auto">
           {view === 'dashboard' && (
