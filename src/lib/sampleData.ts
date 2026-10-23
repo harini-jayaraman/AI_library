@@ -15,7 +15,7 @@ function daysFromNow(n: number): string {
 }
 
 export const DEFAULT_POLICY: LibraryPolicy = {
-  maxRenewals: 2,
+  maxRenewals: 10,
   renewalPeriodDays: 14,
   reservationBlocksRenewal: true,
   finePerDay: 5, // ₹5/day — configured so Test 4 can calculate
@@ -76,7 +76,7 @@ export function borrowedBooks(): Book[] {
       coverColor: 'from-rose-500 to-red-700',
       issueDate: daysFromNow(-30),
       dueDate: daysFromNow(-2), // overdue — Test 4 (limit reached + overdue)
-      renewalsUsed: 2,
+      renewalsUsed: 10,
       maxRenewals: DEFAULT_POLICY.maxRenewals,
       status: 'limit_reached',
     },

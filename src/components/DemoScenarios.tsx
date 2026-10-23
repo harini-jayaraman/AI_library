@@ -16,7 +16,7 @@ const SCENARIOS: ScenarioMeta[] = [
   { id: 'due-tomorrow', icon: Clock, title: 'Test 1: Two Books Due Tomorrow', description: 'Both eligible. Renew both and verify saved due dates.' },
   { id: 'reserved', icon: Ban, title: 'Test 2: Book Reserved by Another User', description: 'Block renewal, show expected return date, do not modify state.' },
   { id: 'ambiguous', icon: Layers, title: 'Test 3: Ambiguous Database Textbook', description: 'Return 3 editions, require selection + confirmation, then reserve.' },
-  { id: 'limit-reached', icon: BookMarked, title: 'Test 4: Renewal Limit Reached', description: 'Block renewal, no retry. Estimate fine or explain limitation.' },
+  { id: 'limit-reached', icon: BookMarked, title: 'Test 4: Renewal Limit Reached', description: 'Block renewal at limit (10/10), no retry. Estimate fine or explain limitation.' },
 ];
 
 export default function DemoScenarios({ onChanged }: { onChanged: () => void }) {
