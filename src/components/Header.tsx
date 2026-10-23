@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function Header({ onOpenMobile, onNavigate, isDemoMode, onExitDemoMode }: Props) {
-  const { user, signOut } = useAuth();
+  const { user, displayName: authName, signOut } = useAuth();
   const { clearForUser } = notificationStore;
   const [, setTick] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,8 +22,8 @@ export default function Header({ onOpenMobile, onNavigate, isDemoMode, onExitDem
   useEffect(() => notificationStore.subscribe(refresh), [refresh]);
 
   const unreadCount = notificationStore.getUnreadCount();
-  const displayName = isDemoMode ? DEMO_USER.name : (user?.email ?? 'User');
-  const initials = isDemoMode ? DEMO_USER.initials : (user?.email?.[0]?.toUpperCase() ?? 'U');
+  const displayName = isDemoMode ? DEMO_USER.name : authName;
+  const initials = isDemoMode ? DEMO_USER.initials : (displayName ? displayName[0].toUpperCase() : 'U');
   const role = isDemoMode ? DEMO_USER.role : 'Signed in';
 
   const handleBellClick = () => {

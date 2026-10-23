@@ -5,12 +5,22 @@ import { supabase } from './supabaseClient';
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
+  displayName: string;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+}
+
+function resolveDisplayName(user: User | null): string {
+  if (!user) return '';
+  const meta = user.user_metadata ?? {};
+  const name = meta.full_name ?? meta.name ?? meta.full_name;
+  if (name && typeof name === 'string' && name.trim()) return name.trim();
+  if (user.email) return user.email;
+  return 'User';
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -65,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null, loading, signIn, signUp, signInWithGoogle, resetPassword, signOut }}>
+    <AuthContext.Provider value={{ session, user: session?.user ?? null, displayName: resolveDisplayName(session?.user ?? null), loading, signIn, signUp, signInWithGoogle, resetPassword, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -15,7 +15,7 @@ import { AuthProvider, useAuth } from '@/lib/authContext';
 import type { SearchMode } from '@/lib/types';
 
 function AppInner() {
-  const { user, loading } = useAuth();
+  const { user, displayName, loading } = useAuth();
   const [view, setView] = useState<View>('dashboard');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [, setTick] = useState(0);
@@ -80,7 +80,7 @@ function AppInner() {
         <main className="flex-1 overflow-y-auto">
           {view === 'dashboard' && (
             <div className="mx-auto max-w-6xl px-4 py-6 lg:px-8">
-              <Dashboard stats={stats} books={books} holds={holds} activity={activity} onNavigate={setView} />
+              <Dashboard stats={stats} books={books} holds={holds} activity={activity} onNavigate={setView} userName={demoMode ? 'Siya' : displayName} />
             </div>
           )}
           {view === 'books' && (
@@ -93,7 +93,7 @@ function AppInner() {
               <CatalogueSearch searchMode={searchMode} />
             </div>
           )}
-          {view === 'assistant' && <ChatAssistant onChanged={refresh} searchMode={searchMode} />}
+          {view === 'assistant' && <ChatAssistant onChanged={refresh} searchMode={searchMode} userName={demoMode ? 'Siya' : displayName} />}
           {view === 'demo' && (
             <div className="mx-auto max-w-6xl px-4 py-6 lg:px-8">
               <DemoScenarios onChanged={refresh} />

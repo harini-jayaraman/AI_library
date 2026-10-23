@@ -33,9 +33,9 @@ function formatContent(content: string) {
   ));
 }
 
-export default function ChatAssistant({ onChanged, searchMode }: { onChanged: () => void; searchMode: SearchMode }) {
+export default function ChatAssistant({ onChanged, searchMode, userName }: { onChanged: () => void; searchMode: SearchMode; userName: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    makeMsg('assistant', "Hi Siya! I'm your AI library assistant. I can renew books, place holds, check due dates, and explain renewal policies. Tap the microphone to speak, or type your request below."),
+    makeMsg('assistant', `Hi ${userName || 'there'}! I'm your AI library assistant. I can renew books, place holds, check due dates, and explain renewal policies. Tap the microphone to speak, or type your request below.`),
   ]);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);

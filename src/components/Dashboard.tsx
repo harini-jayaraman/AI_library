@@ -11,9 +11,10 @@ interface Props {
   holds: Hold[];
   activity: ActivityEntry[];
   onNavigate: (v: View) => void;
+  userName: string;
 }
 
-export default function Dashboard({ stats, books, holds, activity, onNavigate }: Props) {
+export default function Dashboard({ stats, books, holds, activity, onNavigate, userName }: Props) {
   const borrowed = books.filter((b) => !b.inCatalogueOnly);
   const dueSoonBooks = borrowed.filter((b) => {
     const d = daysUntil(b.dueDate);
@@ -25,7 +26,7 @@ export default function Dashboard({ stats, books, holds, activity, onNavigate }:
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Welcome back, Siya</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Welcome back, {userName || 'there'}</h1>
         <p className="mt-1 text-sm text-gray-500">Here's what's happening with your library account today.</p>
       </div>
 
