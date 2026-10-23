@@ -1,0 +1,2 @@
+[functions.koha-search]
+verify_jwt = false
