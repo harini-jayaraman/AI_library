@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BookOpen, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, FlaskConical } from 'lucide-react';
+import { BookOpen, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, FlaskConical, User as UserIcon, AtSign } from 'lucide-react';
 import { useAuth } from '@/lib/authContext';
 
 interface Props {
@@ -9,20 +9,30 @@ interface Props {
 export default function Login({ onDemoMode }: Props) {
   const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const validate = (): string | null => {
+    if (mode === 'signup') {
+      if (!firstName.trim()) return 'First name is required.';
+      if (!lastName.trim()) return 'Last name is required.';
+      if (!username.trim()) return 'Username is required.';
+    }
     if (!email.trim()) return 'Email address is required.';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return 'Please enter a valid email address.';
     if (mode !== 'forgot') {
       if (!password) return 'Password is required.';
       if (password.length < 6) return 'Password must be at least 6 characters.';
+      if (mode === 'signup' && password !== confirmPassword) return 'Passwords do not match.';
     }
     return null;
   };
@@ -41,10 +51,16 @@ export default function Login({ onDemoMode }: Props) {
         if (err) setError(err);
         else setInfo('Password reset link sent. Check your email inbox.');
       } else if (mode === 'signup') {
-        const { error: err } = await signUp(email, password);
-        if (err) setError(err);
-        else setInfo('Account created. You can now sign in.');
-        setMode('signin');
+        const { error: err } = await signUp(
+          { firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), username: username.trim() },
+          password,
+        );
+        if (err) { setError(err); }
+        else {
+          setInfo('Account created. You can now sign in.');
+          setFirstName(''); setLastName(''); setEmail(''); setUsername(''); setPassword(''); setConfirmPassword('');
+          setMode('signin');
+        }
       } else {
         const { error: err } = await signIn(email, password);
         if (err) setError(err);
@@ -61,6 +77,8 @@ export default function Login({ onDemoMode }: Props) {
     const { error: err } = await signInWithGoogle();
     if (err) { setError(err); setBusy(false); }
   };
+
+  const inputClass = 'w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-800 outline-none focus:border-navy-400 focus:ring-2 focus:ring-navy-100';
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-navy-900 via-navy-800 to-navy-950 px-4 py-8">
@@ -109,6 +127,40 @@ export default function Login({ onDemoMode }: Props) {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === 'signup' && (
+              <>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">First Name</label>
+                  <div className="relative">
+                    <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Harini"
+                      className={inputClass}
+                      autoComplete="given-name"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Last Name</label>
+                  <div className="relative">
+                    <UserIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Jayaraman"
+                      className={inputClass}
+                      autoComplete="family-name"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Email address</label>
               <div className="relative">
@@ -118,11 +170,28 @@ export default function Login({ onDemoMode }: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-800 outline-none focus:border-navy-400 focus:ring-2 focus:ring-navy-100"
+                  className={inputClass}
                   autoComplete="email"
                 />
               </div>
             </div>
+
+            {mode === 'signup' && (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Username</label>
+                <div className="relative">
+                  <AtSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="harini123"
+                    className={inputClass}
+                    autoComplete="username"
+                  />
+                </div>
+              </div>
+            )}
 
             {mode !== 'forgot' && (
               <div>
@@ -134,7 +203,7 @@ export default function Login({ onDemoMode }: Props) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-sm text-gray-800 outline-none focus:border-navy-400 focus:ring-2 focus:ring-navy-100"
+                    className={inputClass}
                     autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
                   />
                   <button
@@ -145,6 +214,23 @@ export default function Login({ onDemoMode }: Props) {
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
+                </div>
+              </div>
+            )}
+
+            {mode === 'signup' && (
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">Confirm Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter your password"
+                    className={inputClass}
+                    autoComplete="new-password"
+                  />
                 </div>
               </div>
             )}
