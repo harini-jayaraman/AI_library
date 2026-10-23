@@ -1,6 +1,7 @@
 import type { Book, Hold, ActivityEntry, LibraryPolicy, DashboardStats, DataSource } from './types';
 import { borrowedBooks, catalogueBooks, initialHolds, DEFAULT_POLICY } from './sampleData';
-import { checkRenewal, isDueSoon, estimateFine } from './policy';
+import { checkRenewal, isDueSoon, estimateFine, daysUntil } from './policy';
+import { notificationStore } from './notificationStore';
 
 const STORAGE_KEY = 'ai-library-demo-v2';
 
@@ -134,6 +135,13 @@ class LibraryStore {
         verified: true,
         source: 'demo',
       });
+      if (book.status === 'reserved') {
+        notificationStore.add(
+          'Renewal blocked — book reserved',
+          `"${book.title}" could not be renewed because ${book.reservedBy ?? 'another user'} has reserved it.`,
+          'reservation',
+        );
+      }
       return { success: false, message: check.reason ?? 'Renewal not permitted.' };
     }
     book.renewalsUsed += 1;
@@ -150,6 +158,18 @@ class LibraryStore {
       verified,
       source: 'demo',
     });
+    notificationStore.add(
+      'Book renewed (demo)',
+      `"${book.title}" was renewed. New due date: ${check.newDueDate}. Renewals used: ${book.renewalsUsed}/${book.maxRenewals}.`,
+      'renewal',
+    );
+    if (book.renewalsUsed >= book.maxRenewals) {
+      notificationStore.add(
+        'Renewal limit reached',
+        `You have reached the maximum of ${book.maxRenewals} renewals for "${book.title}". No further renewals are permitted.`,
+        'limit_reached',
+      );
+    }
     this.emit();
     return {
       success: true,
@@ -182,6 +202,11 @@ class LibraryStore {
       verified,
       source: 'demo',
     });
+    notificationStore.add(
+      'Hold placed',
+      `You placed a hold on "${book.title}". You are #${queuePos} in the queue.`,
+      'hold',
+    );
     this.emit();
     return {
       success: true,
@@ -259,6 +284,20 @@ class LibraryStore {
     const book = this.getBook(bookId);
     if (!book) return null;
     return estimateFine(book, this.state.policy);
+  }
+
+  checkDueDateNotifications() {
+    const borrowed = this.getBorrowedBooks();
+    for (const book of borrowed) {
+      const d = daysUntil(book.dueDate);
+      if (d >= 0 && d <= this.state.policy.dueSoonWindowDays) {
+        notificationStore.add(
+          'Due date approaching',
+          `"${book.title}" is due ${d === 0 ? 'today' : d === 1 ? 'tomorrow' : `in ${d} days`} (${book.dueDate}). Please renew or return it soon.`,
+          'due_date',
+        );
+      }
+    }
   }
 }
 

@@ -1,7 +1,7 @@
-import { LayoutDashboard, BookOpen, MessageSquare, FlaskConical, History, X, Search, Wifi, FlaskConical as Flask } from 'lucide-react';
+import { LayoutDashboard, BookOpen, MessageSquare, FlaskConical, History, X, Search, Wifi, FlaskConical as Flask, Bell } from 'lucide-react';
 import type { SearchMode } from '@/lib/types';
 
-export type View = 'dashboard' | 'books' | 'catalogue' | 'assistant' | 'demo' | 'history';
+export type View = 'dashboard' | 'books' | 'catalogue' | 'assistant' | 'demo' | 'history' | 'notifications';
 
 interface Props {
   current: View;
@@ -19,6 +19,7 @@ const nav: { id: View; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'assistant', label: 'AI Assistant', icon: MessageSquare },
   { id: 'demo', label: 'Demo Scenarios', icon: FlaskConical },
   { id: 'history', label: 'Activity History', icon: History },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
 ];
 
 export default function Sidebar({ current, onNavigate, mobileOpen, onCloseMobile, searchMode, onToggleMode }: Props) {
