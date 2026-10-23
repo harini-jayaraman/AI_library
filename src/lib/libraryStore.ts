@@ -26,6 +26,7 @@ function load(): StoreState {
     if (!raw) return freshState();
     const parsed = JSON.parse(raw) as StoreState;
     if (!parsed.books || !parsed.policy) return freshState();
+    if (parsed.policy.maxRenewals !== DEFAULT_POLICY.maxRenewals) return freshState();
     return parsed;
   } catch {
     return freshState();
